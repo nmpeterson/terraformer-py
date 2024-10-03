@@ -1,0 +1,14 @@
+[project]
+name = "terraformer-py"
+version = "0.0.1"
+authors = [
+  { name="Noel Peterson", email="npeterson@esri.com" },
+]
+description = "A Python version of Terraformer"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
