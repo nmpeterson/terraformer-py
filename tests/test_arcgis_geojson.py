@@ -28,6 +28,12 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
         output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"x": -58.7109375, "y": 47.4609375, "z": 0, "spatialReference": {"wkid": 4326}})
 
+    def test_point_wkid(self):
+        """Should convert a GeoJSON Point to an ArcGIS Point with a custom WKID"""
+        in_geojson = {"type": "Point", "coordinates": [1.0, 2.0]}
+        output = geojson_to_arcgis(in_geojson, wkid=3857)
+        self.assertEqual(output, {"x": 1.0, "y": 2.0, "spatialReference": {"wkid": 3857}})
+
     def test_null_island(self):
         """Should convert a GeoJSON Null Island to an ArcGIS Point"""
         in_geojson = {"type": "Point", "coordinates": [0, 0]}
@@ -399,6 +405,30 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
         output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"attributes": {"OBJECTID": "foo"}})
 
+    def test_feature_bbox(self):
+        """Should convert a GeoJSON Feature with a bbox attribute to an ArcGIS Feature"""
+        in_geojson = {
+            "type": "Feature",
+            "id": "foo",
+            "bbox": [-10.0, -10.0, 10.0, 10.0],
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[-10.0, -10.0], [10.0, -10.0], [10.0, 10.0], [-10.0, -10.0]]],
+            },
+            "properties": None,
+        }
+        output = geojson_to_arcgis(in_geojson)
+        self.assertEqual(
+            output,
+            {
+                "geometry": {
+                    "rings": [[[-10.0, -10.0], [10.0, 10.0], [10.0, -10.0], [-10.0, -10.0]]],
+                    "spatialReference": {"wkid": 4326},
+                },
+                "attributes": {"OBJECTID": "foo"},
+            },
+        )
+
     def test_featurecollection(self):
         """Should convert a GeoJSON FeatureCollection to an array of ArcGIS Feature JSON"""
         in_geojson = {
@@ -506,10 +536,6 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
         original = json.dumps(in_geojson)
         geojson_to_arcgis(in_geojson)
         self.assertEqual(json.dumps(in_geojson), original)
-
-    # TODO: Test alternate WKID
-
-    # TODO: Test GeoJSON Feature with bbox attribute (should ignore)
 
 
 if __name__ == "__main__":
