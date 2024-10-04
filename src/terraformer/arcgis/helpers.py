@@ -7,7 +7,7 @@ from terraformer.common import (
 )
 
 
-def _close_ring(ring: LineStringCoords) -> LineStringCoords:
+def close_ring(ring: LineStringCoords) -> LineStringCoords:
     """Checks if the first and last points of a ring are equal and closes the ring (i.e. ensures 1st and last points
     are identical)
 
@@ -22,7 +22,7 @@ def _close_ring(ring: LineStringCoords) -> LineStringCoords:
     return ring
 
 
-def _ring_is_clockwise(ring: LineStringCoords) -> bool:
+def ring_is_clockwise(ring: LineStringCoords) -> bool:
     """Determine if polygon ring coordinates are clockwise. clockwise signifies outer ring,
     counter-clockwise an inner ring or hole. This logic was found at
     <http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order>
@@ -41,7 +41,7 @@ def _ring_is_clockwise(ring: LineStringCoords) -> bool:
     return total >= 0
 
 
-def _orient_rings(polygon: PolygonCoords) -> PolygonCoords:
+def orient_rings(polygon: PolygonCoords) -> PolygonCoords:
     """Ensures that polygon's rings are oriented in the right direction for Esri JSON (i.e. outer rings are clockwise,
     holes are counterclockwise)
 
@@ -53,21 +53,21 @@ def _orient_rings(polygon: PolygonCoords) -> PolygonCoords:
     """
     output = []
     polygon = polygon[:]
-    outer_ring = _close_ring(polygon.pop(0)[:])
+    outer_ring = close_ring(polygon.pop(0)[:])
     if len(outer_ring) >= 4:
-        if not _ring_is_clockwise(outer_ring):
+        if not ring_is_clockwise(outer_ring):
             outer_ring.reverse()
         output.append(outer_ring)
         for hole in polygon:
-            hole = _close_ring(hole[:])
+            hole = close_ring(hole[:])
             if len(hole) >= 4:
-                if _ring_is_clockwise(hole):
+                if ring_is_clockwise(hole):
                     hole.reverse()
                 output.append(hole)
     return output
 
 
-def _flatten_multipolygon_rings(multipolygon: MultiPolygonCoords) -> MultiLineStringCoords:
+def flatten_multipolygon_rings(multipolygon: MultiPolygonCoords) -> MultiLineStringCoords:
     """Flattens holes in multipolygons to one array of polygons
 
     Args:
@@ -78,7 +78,7 @@ def _flatten_multipolygon_rings(multipolygon: MultiPolygonCoords) -> MultiLineSt
     """
     output = []
     for polygon in multipolygon:
-        clean_polygon = _orient_rings(polygon)
+        clean_polygon = orient_rings(polygon)
         for ring in clean_polygon[::-1]:
             output.append(ring[:])
     return output

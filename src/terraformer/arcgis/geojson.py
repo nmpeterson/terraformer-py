@@ -1,4 +1,4 @@
-from ._helpers import _flatten_multipolygon_rings, _orient_rings
+from .helpers import flatten_multipolygon_rings, orient_rings
 
 
 class GeoJSONError(Exception):
@@ -73,7 +73,7 @@ def geojson_to_arcgis(geojson: dict, id_attribute: str = "OBJECTID", wkid: int =
             pass
 
     elif geojson_object_type == "Polygon":
-        result["rings"] = _orient_rings(coordinates[:])
+        result["rings"] = orient_rings(coordinates[:])
         try:
             if coordinates[0][0][2] is not None:
                 result["hasZ"] = True
@@ -81,7 +81,7 @@ def geojson_to_arcgis(geojson: dict, id_attribute: str = "OBJECTID", wkid: int =
             pass
 
     elif geojson_object_type == "MultiPolygon":
-        result["rings"] = _flatten_multipolygon_rings(coordinates[:])
+        result["rings"] = flatten_multipolygon_rings(coordinates[:])
         try:
             if coordinates[0][0][0][2] is not None:
                 result["hasZ"] = True
