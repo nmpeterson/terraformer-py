@@ -1,37 +1,37 @@
 import json
 import unittest
 
-from terraformer.arcgis import geojson
+from terraformer.arcgis import geojson_to_arcgis
 
 
 class TestGeoJSONToArcGIS(unittest.TestCase):
 
     def test_exists(self):
-        """Function geojson.geojson_to_arcgis should exist"""
-        self.assertTrue(geojson.geojson_to_arcgis)
+        """Function geojson_to_arcgis() should exist"""
+        self.assertTrue(geojson_to_arcgis)
 
     def test_point(self):
         """Should convert a GeoJSON Point to an ArcGIS Point"""
         in_geojson = {"type": "Point", "coordinates": [-58.7109375, 47.4609375]}
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"x": -58.7109375, "y": 47.4609375, "spatialReference": {"wkid": 4326}})
 
     def test_point_z(self):
         """Should convert a GeoJSON Point to an ArcGIS Point and include z-values"""
         in_geojson = {"type": "Point", "coordinates": [-58.7109375, 47.4609375, 10]}
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"x": -58.7109375, "y": 47.4609375, "z": 10, "spatialReference": {"wkid": 4326}})
 
     def test_point_z0(self):
         """Should convert a GeoJSON Point to an ArcGIS Point and include a z-value of 0"""
         in_geojson = {"type": "Point", "coordinates": [-58.7109375, 47.4609375, 0]}
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"x": -58.7109375, "y": 47.4609375, "z": 0, "spatialReference": {"wkid": 4326}})
 
     def test_null_island(self):
         """Should convert a GeoJSON Null Island to an ArcGIS Point"""
         in_geojson = {"type": "Point", "coordinates": [0, 0]}
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"x": 0, "y": 0, "spatialReference": {"wkid": 4326}})
 
     def test_linestring(self):
@@ -40,7 +40,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             "type": "LineString",
             "coordinates": [[21.4453125, -14.0625], [33.3984375, -20.7421875], [38.3203125, -24.609375]],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -55,7 +55,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             "type": "LineString",
             "coordinates": [[21.4453125, -14.0625, 10], [33.3984375, -20.7421875, 15], [38.3203125, -24.609375, 12]],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -73,7 +73,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[41.8359375, 71.015625], [56.953125, 33.75], [21.796875, 36.5625], [41.8359375, 71.015625]]
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -95,7 +95,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 ]
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -121,7 +121,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -142,7 +142,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[100.2, 0.2], [100.8, 0.2], [100.2, 0.2]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -160,7 +160,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -178,7 +178,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             "type": "MultiPoint",
             "coordinates": [[41.8359375, 71.015625], [56.953125, 33.75], [21.796875, 36.5625]],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -193,7 +193,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             "type": "MultiPoint",
             "coordinates": [[41.8359375, 71.015625, 10], [56.953125, 33.75, 15], [21.796875, 36.5625, 12]],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -212,7 +212,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[21.796875, 36.5625], [47.8359375, 71.015625]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -233,7 +233,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[21.796875, 36.5625, 12], [47.8359375, 71.015625, 10]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -255,7 +255,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -276,7 +276,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 [[[100.0, 0.0, 15], [101.0, 0.0, 15], [101.0, 1.0, 15], [100.0, 1.0, 15], [100.0, 0.0, 15]]],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -301,7 +301,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 ],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -326,7 +326,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 ],
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -352,7 +352,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             },
             "properties": {"foo": "bar"},
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             {
@@ -379,7 +379,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             },
             "properties": {"foo": "bar"},
         }
-        output = geojson.geojson_to_arcgis(in_geojson, id_attribute="myId")
+        output = geojson_to_arcgis(in_geojson, id_attribute="myId")
         self.assertEqual(
             output,
             {
@@ -396,7 +396,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
     def test_feature_empty(self):
         """Should allow converting a GeoJSON Feature to an ArcGIS Feature with no properties or geometry"""
         in_geojson = {"type": "Feature", "id": "foo", "geometry": None, "properties": None}
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(output, {"attributes": {"OBJECTID": "foo"}})
 
     def test_featurecollection(self):
@@ -427,7 +427,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 },
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             [
@@ -462,7 +462,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
                 {"type": "Point", "coordinates": [-94, 46]},
             ],
         }
-        output = geojson.geojson_to_arcgis(in_geojson)
+        output = geojson_to_arcgis(in_geojson)
         self.assertEqual(
             output,
             [
@@ -504,7 +504,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             ],
         }
         original = json.dumps(in_geojson)
-        geojson.geojson_to_arcgis(in_geojson)
+        geojson_to_arcgis(in_geojson)
         self.assertEqual(json.dumps(in_geojson), original)
 
     # TODO: Test alternate WKID
