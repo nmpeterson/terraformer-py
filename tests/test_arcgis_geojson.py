@@ -1,10 +1,6 @@
-# import json
-# import os
 import json
-import sys
 import unittest
 
-sys.path.append("./src")
 from terraformer.arcgis import geojson
 
 
