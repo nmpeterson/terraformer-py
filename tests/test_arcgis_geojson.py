@@ -507,6 +507,10 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
         geojson.geojson_to_arcgis(in_geojson)
         self.assertEqual(json.dumps(in_geojson), original)
 
+    # TODO: Test alternate WKID
+
+    # TODO: Test GeoJSON Feature with bbox attribute (should ignore)
+
 
 if __name__ == "__main__":
     unittest.main()

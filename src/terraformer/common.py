@@ -1,14 +1,14 @@
 from typing import TypeAlias
 
-Point: TypeAlias = list[float]  # [x, y, ?z]
-MultiPoint: TypeAlias = list[Point]
-LineString: TypeAlias = list[Point]
-MultiLineString: TypeAlias = list[LineString]
-Polygon: TypeAlias = list[LineString]
-MultiPolygon: TypeAlias = list[Polygon]
+PointCoords: TypeAlias = list[float]  # [x, y, ?z]
+MultiPointCoords: TypeAlias = list[PointCoords]
+LineStringCoords: TypeAlias = list[PointCoords]
+MultiLineStringCoords: TypeAlias = list[LineStringCoords]
+PolygonCoords: TypeAlias = list[LineStringCoords]
+MultiPolygonCoords: TypeAlias = list[PolygonCoords]
 
 
-def points_equal(a: Point, b: Point) -> bool:
+def points_equal(a: PointCoords, b: PointCoords) -> bool:
     """Checks that two points are identical
 
     Args:

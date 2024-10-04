@@ -1,11 +1,7 @@
-from typing import Literal, TypeAlias
-
 from ._helpers import _flatten_multipolygon_rings, _orient_rings
 
-GeojsonType: TypeAlias = Literal["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon"]
 
-
-class GeojsonError(Exception):
+class GeoJSONError(Exception):
     # Custom exception for GeoJSON formatting errors
     pass
 
@@ -23,12 +19,12 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
             <https://datatracker.ietf.org/doc/html/rfc7946>
 
     Returns:
-        dict | list: _description_
+        dict | list: An Esri JSON object (or list of objects if input is a FeatureCollection or GeometryCollection)
     """
     result = {}
 
     if not (geojson_object_type := geojson.get("type")):
-        raise GeojsonError("Missing/empty 'type' property")
+        raise GeoJSONError("Missing/empty 'type' property")
 
     is_geometry_object = geojson_object_type in (
         "Point",
@@ -42,9 +38,9 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
     if is_geometry_object:
         result["spatialReference"] = {"wkid": wkid}
         if not (coordinates := geojson.get("coordinates")):
-            raise GeojsonError(f"Missing/empty 'coordinates' property on {geojson_object_type} object")
+            raise GeoJSONError(f"Missing/empty 'coordinates' property on {geojson_object_type} object")
         if not isinstance(coordinates, list):
-            raise GeojsonError(f"Invalid 'coordinates' property: {coordinates}")
+            raise GeoJSONError(f"Invalid 'coordinates' property: {coordinates}")
 
     if geojson_object_type == "Point":
         result["x"] = coordinates[0]
@@ -96,11 +92,11 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
         try:
             geometry = geojson["geometry"]
         except KeyError as e:
-            raise GeojsonError("Missing 'geometry' property on Feature object") from e
+            raise GeoJSONError("Missing 'geometry' property on Feature object") from e
         try:
             properties = geojson["properties"]
         except KeyError as e:
-            raise GeojsonError("Missing 'properties' property on Feature object") from e
+            raise GeoJSONError("Missing 'properties' property on Feature object") from e
         if geometry:
             result["geometry"] = geojson_to_arcgis(geometry, wkid, id_attribute)
         if properties:
@@ -112,15 +108,15 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
 
     elif geojson_object_type == "FeatureCollection":
         if not (features := geojson.get("features")):
-            raise GeojsonError("Missing/empty 'features' property on FeatureCollection object")
+            raise GeoJSONError("Missing/empty 'features' property on FeatureCollection object")
         result = [geojson_to_arcgis(feature, wkid, id_attribute) for feature in features]
 
     elif geojson_object_type == "GeometryCollection":
         if not (geometries := geojson.get("geometries")):
-            raise GeojsonError("Missing/empty 'geometries' property on GeometryCollection object")
+            raise GeoJSONError("Missing/empty 'geometries' property on GeometryCollection object")
         result = [geojson_to_arcgis(geometry, wkid, id_attribute) for geometry in geometries]
 
     else:
-        raise GeojsonError(f"Invalid 'type' property: {geojson_object_type}")
+        raise GeoJSONError(f"Invalid 'type' property: {geojson_object_type}")
 
     return result
