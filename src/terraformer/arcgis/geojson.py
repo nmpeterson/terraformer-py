@@ -6,13 +6,13 @@ class GeoJSONError(Exception):
     pass
 
 
-def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJECTID") -> dict | list:
+def geojson_to_arcgis(geojson: dict, id_attribute: str = "OBJECTID", wkid: int = 4326) -> dict | list:
     """Recursively converts a GeoJSON object to an Esri JSON object
 
     Args:
         geojson (dict): Input GeoJSON object
-        wkid (int, optional): WKID of the GeoJSON's spatial reference. Defaults to 4326 (WGS 84).
         id_attribute (str, optional): Name of output ID attribute. Defaults to "OBJECTID".
+        wkid (int, optional): WKID of the GeoJSON's spatial reference. Defaults to 4326 (WGS 84).
 
     Raises:
         GeoJSONError: If the GeoJSON object is invalid in some way. GeoJSON spec:
@@ -98,7 +98,7 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
         except KeyError as e:
             raise GeoJSONError("Missing 'properties' property on Feature object") from e
         if geometry:
-            result["geometry"] = geojson_to_arcgis(geometry, wkid, id_attribute)
+            result["geometry"] = geojson_to_arcgis(geometry, id_attribute, wkid)
         if properties:
             result["attributes"] = properties.copy()
         if id_val := geojson.get("id"):
@@ -109,12 +109,12 @@ def geojson_to_arcgis(geojson: dict, wkid: int = 4326, id_attribute: str = "OBJE
     elif geojson_object_type == "FeatureCollection":
         if not (features := geojson.get("features")):
             raise GeoJSONError("Missing/empty 'features' property on FeatureCollection object")
-        result = [geojson_to_arcgis(feature, wkid, id_attribute) for feature in features]
+        result = [geojson_to_arcgis(feature, id_attribute, wkid) for feature in features]
 
     elif geojson_object_type == "GeometryCollection":
         if not (geometries := geojson.get("geometries")):
             raise GeoJSONError("Missing/empty 'geometries' property on GeometryCollection object")
-        result = [geojson_to_arcgis(geometry, wkid, id_attribute) for geometry in geometries]
+        result = [geojson_to_arcgis(geometry, id_attribute, wkid) for geometry in geometries]
 
     else:
         raise GeoJSONError(f"Invalid 'type' property: {geojson_object_type}")
