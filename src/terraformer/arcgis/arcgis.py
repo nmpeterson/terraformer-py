@@ -27,12 +27,11 @@ def arcgis_to_geojson(arcgis: dict, id_attribute: str = None) -> dict:
         for feature in features:
             geojson["features"].append(arcgis_to_geojson(feature, id_attribute))
 
-    if (x := arcgis.get("x")) and (y := arcgis.get("y")):
-        if _is_number(x) and _is_number(y):
-            geojson["type"] = "Point"
-            geojson["coordinates"] = [x, y]
-            if (z := arcgis.get("z")) and _is_number(z):
-                geojson["coordinates"].append(z)
+    if _is_number(x := arcgis.get("x")) and _is_number(y := arcgis.get("y")):
+        geojson["type"] = "Point"
+        geojson["coordinates"] = [x, y]
+        if (z := arcgis.get("z")) and _is_number(z):
+            geojson["coordinates"].append(z)
 
     if points := arcgis.get("points"):
         geojson["type"] = "MultiPoint"
@@ -67,7 +66,9 @@ def arcgis_to_geojson(arcgis: dict, id_attribute: str = None) -> dict:
                 ]
             ]
 
-    if (geometry := arcgis.get("geometry")) or (attributes := arcgis.get("attributes")):
+    geometry = arcgis.get("geometry")
+    attributes = arcgis.get("attributes")
+    if geometry or attributes:
         geojson["type"] = "Feature"
         geojson["geometry"] = arcgis_to_geojson(geometry) if geometry else None
         geojson["properties"] = attributes.copy() if attributes else None
@@ -81,12 +82,9 @@ def arcgis_to_geojson(arcgis: dict, id_attribute: str = None) -> dict:
     if geojson.get("geometry") == {}:
         geojson["geometry"] = None
 
-    if (
-        (spatial_reference := arcgis.get("spatialReference"), {})
-        and (wkid := spatial_reference.get("wkid"))
-        and wkid != 4326
-    ):
-        warn(f"Object converted in non-standard CRS - {spatial_reference}")
+    if spatial_reference := arcgis.get("spatialReference"):
+        if (wkid := spatial_reference.get("wkid")) and wkid != 4326:
+            warn(f"Object converted in non-standard CRS - {spatial_reference}")
 
     return geojson
 
@@ -133,7 +131,7 @@ def _convert_rings_to_geojson(rings: MultiLineStringCoords) -> dict:
     while len(holes):
         hole = holes.pop()
         contained = False
-        for i in range(len(outer_rings) - 1, 0, -1):
+        for i in range(len(outer_rings) - 1, -1, -1):
             outer_ring = outer_rings[i][0]
             if _coordinates_contain_coordinates(outer_ring, hole):
                 outer_rings[i].append(hole)
@@ -146,7 +144,7 @@ def _convert_rings_to_geojson(rings: MultiLineStringCoords) -> dict:
     while len(uncontained_holes):
         hole = uncontained_holes.pop()
         intersects = False
-        for i in range(len(outer_rings) - 1, 0, -1):
+        for i in range(len(outer_rings) - 1, -1, -1):
             outer_ring = outer_rings[i][0]
             if array_intersects_array(outer_ring, hole):
                 outer_rings[i].append(hole)
@@ -169,14 +167,17 @@ def _get_id(attributes: dict, id_attribute: str = None) -> str | int | float:
         id_attribute (str, optional): Name of ID attribute. Defaults to None, in which case OBJECTID & FID are checked.
 
     Raises:
-        KeyError: If no valid ID attribute is found, or value is not a string, int, or float
+        KeyError: If no valid ID attribute is found, or value is not a string or number
 
     Returns:
         str | int | float: ID value
     """
     for key in [id_attribute, "OBJECTID", "FID"]:
-        if key and (id_val := attributes.get(key)) and isinstance(id_val, (str, int, float)):
-            return id_val
+        if key and (id_val := attributes.get(key)):
+            if isinstance(id_val, (str, int, float)):
+                return id_val
+            elif key == id_attribute:
+                warn(f"ID attribute '{id_attribute}' value `{id_val}` is not a string or number")
     raise KeyError("No valid ID attribute found")
 
 
