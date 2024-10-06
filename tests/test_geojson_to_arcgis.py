@@ -505,7 +505,7 @@ class TestGeoJSONToArcGIS(unittest.TestCase):
             ],
         )
 
-    def test_geojson_unchanged(self):
+    def test_input_unchanged(self):
         """Should not modify the original GeoJSON object"""
         in_geojson = {
             "type": "FeatureCollection",
